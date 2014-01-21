@@ -1,0 +1,50 @@
+RULES
+
+1. same compartment
+-chemicaly unique molecule is having same species ID
+-different species aliases
+-each species has at least one species alias
+
+2. different compartments or in complex
+-chemicaly unique molecule is having different species ID
+
+No need to merge different species pointing to same chemicaly unique molecule because they are separated by membranes (active or passive transport - hence additional reactions needed) 
+or are part of complexes, which represents other than monomeric state
+Species Aliases identify mapping of particular occurence with molecule and the place of occurence (complex or compartment)
+
+Rules are inherited e.g. complexes inside other complex are treated as other included species
+
+0. proby z SBML 
+	http://www.staff.ncl.ac.uk/d.j.wilkinson/software/sbml-sh
+	http://nullege.com/codes/show/src@s@e@semanticsbml-HEAD@semanticSBML@annotate.py
+   SemanticSBML
+	http://www.semanticsbml.org/semanticSBML1/docu/semanticSBML.annotate-module.html
+	http://www.semanticsbml.org/semanticSBML1/annotate.html#cAnnotations_Elements_Model
+
+1. Parse reactions with python script
+	python extract_PDmap-0.0.py xmlfile (prints names)
+	python extract_PDmap-0.2.py xmlfile (prints IDs)
+
+2. Parse reaction with perl script transforming map into regulazory network
+	perl parseCDmaps.pl PD_111206_ms.xml -r > PDmap_111206_GR.txt
+
+3. parse species
+	perl parseCDmaps-0.5.pl -s PD_111206_ms_rename.xml
+	no species included in complexes
+
+3. get members of functional compartments
+	perl parseCDmaps-0.5b.pl -s PD_111206_ms_rename.xml -m >  species_in_fmodules.txt
+
+4. get members of complexes
+	perl parseCDmaps-0.6.pl -s PD_111206_ms_rename.xml -m 
+
+UWAGA - species id sa takie same jesli kpiujemy do innego miejsca na tym samym poziomie	
+	- trzeba dodac kontrole instancji po aliasie z ListOfAliasSpecies? a moze to dobrze ze jest ten sam identyfikator?
+
+
+TODO
+	- ustalic z Malaiem ktora wersja parsowania jest lepsza: ujednolicic
+	- rozwiazac kwestie aliasow - species ma ten sam 
+
+Redundancy of species as mapped to unique species aliases found in listOfSpeciesAlias
+grep "celldesigner:speciesAlias id" PD_111206_ms_rename.xml | cut -d " " -f3 |sed s/species=// | sort | uniq -c | sort -n > species_redundancy.txt
